@@ -1,0 +1,36 @@
+name: Test
+on:
+  workflow_dispatch:
+    inputs:
+      all:
+        description: 'Update all'
+        required: true
+        type: boolean
+      dry:
+        description: 'Dry run'
+        required: true
+        type: boolean
+      run:
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  Manage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      run: pip install PyGithub
+
+    - name: Run script
+      if: ${{ inputs.run }}
+      run: |
+        ./scripts/test.py \
+          --token=${{ secrets.GITHUB_TOKEN }} \
+          --sha=${{ github.sha }} \
+          ${{ inputs.all && '--all' || '' }} \
+          ${{ inputs.dry && '--dry' || '' }}
