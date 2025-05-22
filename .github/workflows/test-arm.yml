@@ -1,0 +1,35 @@
+name: Test arm
+on:
+  workflow_dispatch:
+    inputs:
+      abi_tag:
+        required: true
+        default: cp311-cp311
+        type: string
+      manylinux_tag:
+        required: true
+        default: 2014_aarch64
+        type: string
+      version:
+        required: true
+        default: 3.11.12
+        type: string
+
+jobs:
+  Manage:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: 'niess/python-appimage'
+        ref: 'dev'
+
+    - name: Run test
+      run: |
+        export PYTHONPATH=$PWD
+        export IMAGE='python${{ inputs.version }}-${{ inputs.abi_tag }}-manylinux${{ inputs.manylinux_tag }}.AppImage'
+        wget -q https://github.com/niess/python-appimage/releases/download/python3.11/$IMAGE
+        chmod +x $IMAGE
+        ./scripts/test-appimage.py $IMAGE
